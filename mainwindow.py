@@ -21,7 +21,6 @@ class MainWindow(tk.Frame):
         # Initialize communication with C
         self.cbridge = CBridge()
         self.cbridge.init()
-        self.cbridge.interpret()
 
         # Initialize home screen and game screen
         self.gamescreen = GameScreen(self, self.cbridge)
