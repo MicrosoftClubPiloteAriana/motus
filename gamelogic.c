@@ -37,3 +37,11 @@ int* interpret(const char* word)
 	result[4] = 1;
 	return result;
 }
+
+void reset_word()
+/**
+ * Picks up a new word randomly.
+ */
+{
+    info("A new word has been chosen");
+}

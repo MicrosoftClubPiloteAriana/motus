@@ -33,5 +33,11 @@ class CBridge:
         result = self.gamelogic.interpret(word.encode())
         return result
 
+    def reset_word(self):
+        """
+        Picks up a new word randomly
+        """
+        self.gamelogic.reset_word()
+
 
 __all__ = ["CBridge"]
