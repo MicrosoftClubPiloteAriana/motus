@@ -1,1 +1,4 @@
 .idea
+gamelogic.so
+*.dll
+__pycache__
