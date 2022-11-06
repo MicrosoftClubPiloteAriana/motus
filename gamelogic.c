@@ -4,7 +4,6 @@
 #include <string.h>
 #include <time.h>
 
-#define info(msg) printf("[i] %s\n", msg)
 #define WORD_LENGTH 5
 #define COLOR_GRAY 0
 #define COLOR_YELLOW 1
@@ -65,7 +64,7 @@ int* interpret(const char* word)
 {
     bool forbidden_letters[WORD_LENGTH];
     memset(forbidden_letters, false, sizeof(forbidden_letters));
-	int* result = malloc(sizeof(int) * 5);
+    int* result = malloc(sizeof(int) * 5);
     memset(result, COLOR_GRAY, sizeof(result));
     for (int i=0; i<WORD_LENGTH; i++) {
         if (secret_word[i] == word[i]){
