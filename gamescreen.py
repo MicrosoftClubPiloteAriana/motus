@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from cbridge import CBridge
 from basescreen import BaseScreen
 
@@ -20,6 +21,9 @@ class GameScreen(BaseScreen):
         self.wordsframe = WordsFrame(self, self.cbridge)
         self.wordsframe.focus_set()
         self.wordsframe.pack()
+
+    def restart_game(self):
+        self.wordsframe.restart()
 
 
 COLOR_GRAY = 0
@@ -47,7 +51,7 @@ class WordsFrame(tk.LabelFrame):
                 if row == 0:
                     self.grid_columnconfigure(col, minsize=60)
 
-                letter = tk.Label(self, text="", borderwidth=1, relief="solid")
+                letter = tk.Label(self, text="", borderwidth=1, relief="solid", bg="white")
                 letter.grid(row=row, column=col, sticky="nsew")
 
                 self.letter_labels[-1].append(letter)
@@ -60,18 +64,13 @@ class WordsFrame(tk.LabelFrame):
         if len(event.char) == 1 and event.char.isalpha():
             letter = event.char
             if self.current_letter < WORD_LENGTH:
-                letter = letter.upper()
-                self.current_word.append(letter)
-                self.current_letter_label["text"] = letter
+                self.current_word.append(letter.lower())
+                self.current_letter_label["text"] = letter.upper()
                 self.current_letter += 1
 
     def on_return_press(self, event):
         if self.current_letter == WORD_LENGTH:
             self.validate_current_line()
-
-            self.current_line += 1
-            self.current_letter = 0
-            self.current_word.clear()
 
     def on_backspace_press(self, event):
         if self.current_letter > 0:
@@ -82,14 +81,46 @@ class WordsFrame(tk.LabelFrame):
     def validate_current_line(self):
         word = "".join(self.current_word)
         result = self.cbridge.interpret(word)
+        win = True
         for i in range(WORD_LENGTH):
             color = result[i]
             if color == COLOR_GRAY:
-                self.letter_labels[self.current_line][i]["bg"] = "#aaaaaa"
+                self.letter_labels[self.current_line][i]["bg"] = "#cecece"
+                win = False
             elif color == COLOR_YELLOW:
                 self.letter_labels[self.current_line][i]["bg"] = "#ffff33"
+                win = False
             elif color == COLOR_GREEN:
                 self.letter_labels[self.current_line][i]["bg"] = "#22ff55"
+            else:
+                print("[e] Unknown color type", color)
+
+        if win:
+            messagebox.showinfo(
+                "Youpi",
+                f"Well done, you found the word in {self.current_line + 1} tries!")
+            self.root.restart_game()
+        elif self.current_line == LINES_COUNT - 1:
+            messagebox.showinfo(
+                "Looser",
+                f"Better luck next time!\n"
+                f"\n"
+                f"The word was: {self.cbridge.get_secret_word()}")
+            self.root.restart_game()
+        else:
+            self.current_line += 1
+            self.current_letter = 0
+            self.current_word.clear()
+
+    def restart(self):
+        for row in range(self.current_line + 1):
+            for col in range(WORD_LENGTH):
+                self.letter_labels[row][col]["text"] = ""
+                self.letter_labels[row][col]["bg"] = "#ffffff"
+        self.current_line = 0
+        self.current_letter = 0
+        self.current_word.clear()
+        self.cbridge.reset_word()
 
     @property
     def current_letter_label(self):

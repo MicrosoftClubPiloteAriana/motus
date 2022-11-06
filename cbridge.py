@@ -16,6 +16,7 @@ class CBridge:
         # int* interpret(const char* word)
         self.gamelogic.interpret.argtypes = [c_char_p]
         self.gamelogic.interpret.restype = POINTER(c_int)
+        self.gamelogic.get_secret_word.restype = c_char_p
 
     def init(self):
         """
@@ -38,6 +39,9 @@ class CBridge:
         Picks up a new word randomly
         """
         self.gamelogic.reset_word()
+
+    def get_secret_word(self):
+        return self.gamelogic.get_secret_word().decode("UTF-8")
 
 
 __all__ = ["CBridge"]

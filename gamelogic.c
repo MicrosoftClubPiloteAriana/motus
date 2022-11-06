@@ -65,7 +65,7 @@ int* interpret(const char* word)
     bool forbidden_letters[WORD_LENGTH];
     memset(forbidden_letters, false, sizeof(forbidden_letters));
     int* result = malloc(sizeof(int) * WORD_LENGTH);
-    memset(result, COLOR_GRAY, sizeof(result));
+    memset(result, COLOR_GRAY, sizeof(int) * WORD_LENGTH);
     for (int i=0; i<WORD_LENGTH; i++) {
         if (secret_word[i] == word[i]){
             result[i] = COLOR_GREEN;
@@ -83,4 +83,9 @@ int* interpret(const char* word)
         }
     }
     return result;
+}
+
+char* get_secret_word()
+{
+    return secret_word;
 }
