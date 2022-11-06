@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from cbridge import CBridge
 from basescreen import BaseScreen
+import time
 
 
 WORD_LENGTH = 5
@@ -19,11 +20,23 @@ class GameScreen(BaseScreen):
     def init_ui(self):
         # This frame contains all the rows
         self.wordsframe = WordsFrame(self, self.cbridge)
+        self.clock = ClockWidget(self)
+
         self.wordsframe.focus_set()
         self.wordsframe.pack()
+        self.clock.pack()
+
+        self.clock.start()
+
+    def get_elapsed_time(self):
+        return int(self.clock.elapsed_time)
+
+    def stop_game(self):
+        self.clock.stop()
 
     def restart_game(self):
         self.wordsframe.restart()
+        self.clock.start()
 
 
 COLOR_GRAY = 0
@@ -96,11 +109,14 @@ class WordsFrame(tk.LabelFrame):
                 print("[e] Unknown color type", color)
 
         if win:
+            self.root.stop_game()
             messagebox.showinfo(
                 "Youpi",
-                f"Well done, you found the word in {self.current_line + 1} tries!")
+                f"Well done, it took you {self.root.get_elapsed_time()}s "
+                f"to find the word in {self.current_line + 1} tries!")
             self.root.restart_game()
         elif self.current_line == LINES_COUNT - 1:
+            self.root.stop_game()
             messagebox.showinfo(
                 "Looser",
                 f"Better luck next time!\n"
@@ -125,3 +141,39 @@ class WordsFrame(tk.LabelFrame):
     @property
     def current_letter_label(self):
         return self.letter_labels[self.current_line][self.current_letter]
+
+
+class ClockWidget(tk.Label):
+    def __init__(self, root):
+        super().__init__(root)
+
+        self.start_time = 0
+        self.update_id = None
+        self["text"] = self.format_timedelta(0)
+
+    def start(self):
+        self.start_time = time.time()
+        self.update_text()
+
+    def update_text(self):
+        delta = self.elapsed_time
+        self["text"] = self.format_timedelta(delta)
+        self.update_id = self.after(500, self.update_text)
+
+    def stop(self):
+        if self.update_id is not None:
+            self.after_cancel(self.update_id)
+            self.update_id = None
+
+    @property
+    def elapsed_time(self):
+        return time.time() - self.start_time
+
+    @staticmethod
+    def format_timedelta(delta):
+        hours, remainder = divmod(delta, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        string = ""
+        if hours > 0:
+            string = f"{hours} : "
+        return f"{string}{int(minutes):02} : {int(seconds):02}"
