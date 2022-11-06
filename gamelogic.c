@@ -21,7 +21,7 @@ char* wordgen()
     int c = rand() % 2305;
     printf("[i] Word index: %d\n", c);
 
-    char* word = malloc(sizeof(char) * 5);
+    char* word = malloc(sizeof(char) * WORD_LENGTH);
     fseek(fptr, c * (WORD_LENGTH + 1), SEEK_SET);
     for (int i=0; i<WORD_LENGTH; i++) {
         // go to find the word letter by letter
@@ -64,7 +64,7 @@ int* interpret(const char* word)
 {
     bool forbidden_letters[WORD_LENGTH];
     memset(forbidden_letters, false, sizeof(forbidden_letters));
-    int* result = malloc(sizeof(int) * 5);
+    int* result = malloc(sizeof(int) * WORD_LENGTH);
     memset(result, COLOR_GRAY, sizeof(result));
     for (int i=0; i<WORD_LENGTH; i++) {
         if (secret_word[i] == word[i]){
