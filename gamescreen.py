@@ -12,6 +12,9 @@ class GameScreen(BaseScreen):
         super().__init__(root)
 
         self.cbridge = cbridge
+        # from ctypes import c_char_p
+        # self.cbridge.gamelogic.wordgen.restype = c_char_p
+        # print(self.cbridge.gamelogic.wordgen())
 
         self.init_ui()
 
@@ -71,11 +74,13 @@ class WordsFrame(tk.LabelFrame):
 
             self.current_line += 1
             self.current_letter = 0
+            self.current_word.clear()
 
     def on_backspace_press(self, event):
         if self.current_letter > 0:
             self.current_letter -= 1
             self.current_letter_label["text"] = ""
+            self.current_word.pop()
 
     def validate_current_line(self):
         word = "".join(self.current_word)

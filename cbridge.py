@@ -30,7 +30,7 @@ class CBridge:
         :return: An array of int values.
         Refer to the documentation in "gamelogic.c" for more details
         """
-        result = self.gamelogic.interpret(word.encode())
+        result = self.gamelogic.interpret(word.lower().encode())
         return result
 
     def reset_word(self):
