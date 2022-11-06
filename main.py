@@ -1,6 +1,5 @@
 import tkinter as tk
 from mainwindow import MainWindow
-from cbridge import CBridge
 
 
 if __name__ == "__main__":

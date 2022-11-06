@@ -12,9 +12,6 @@ class GameScreen(BaseScreen):
         super().__init__(root)
 
         self.cbridge = cbridge
-        # from ctypes import c_char_p
-        # self.cbridge.gamelogic.wordgen.restype = c_char_p
-        # print(self.cbridge.gamelogic.wordgen())
 
         self.init_ui()
 
