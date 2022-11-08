@@ -16,6 +16,10 @@ char* words[WORDS_MAX];
 int words_len;
 
 void load_words()
+/**
+ * Loads the words into memory for later use.
+ * This must be called once at the beginning of the program
+ */
 {
     FILE* fptr = fopen("words.txt", "r");
 
@@ -52,6 +56,10 @@ void load_words()
 }
 
 char* wordgen()
+/**
+ * Picks a random word from the words list
+ * @return the randomly picked word
+ */
 {
     srand(time(0));
     int c = rand() % words_len;
@@ -113,6 +121,10 @@ int* interpret(const char* word)
 }
 
 bool is_valid(const char* word)
+/**
+ * Checks whether a word is present in out list
+ * @return the validity of the word
+ */
 {
     for (int i=0; i<words_len; i++) {
         if (strcmp(word, words[i]) == 0) return true;
@@ -121,6 +133,9 @@ bool is_valid(const char* word)
 }
 
 char* get_secret_word()
+/**
+ * Returns the game solution
+ */
 {
     return secret_word;
 }
