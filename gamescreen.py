@@ -93,6 +93,10 @@ class WordsFrame(tk.LabelFrame):
 
     def validate_current_line(self):
         word = "".join(self.current_word)
+        if not self.cbridge.is_word_valid(word):
+            self.alert_invalid_word()
+            return
+
         result = self.cbridge.interpret(word)
         win = True
         for i in range(WORD_LENGTH):
@@ -141,6 +145,12 @@ class WordsFrame(tk.LabelFrame):
     @property
     def current_letter_label(self):
         return self.letter_labels[self.current_line][self.current_letter]
+
+    def alert_invalid_word(self, blinks=4, enable=True):
+        if blinks <= 0 and enable: return
+        for letter in self.letter_labels[self.current_line]:
+            letter["foreground"] = "red" if enable else "black"
+        self.after(200, lambda: self.alert_invalid_word(blinks - 1, not enable))
 
 
 class ClockWidget(tk.Label):

@@ -9,29 +9,55 @@
 #define COLOR_YELLOW 1
 #define COLOR_GREEN 2
 
+#define WORDS_MAX 3000
+
 char* secret_word = NULL;
+char* words[WORDS_MAX];
+int words_len;
+
+void load_words()
+{
+    FILE* fptr = fopen("words.txt", "r");
+
+    char* word = malloc(sizeof(char) * (WORD_LENGTH + 1));
+    word[WORD_LENGTH] = '\0';
+
+    int word_i = 0;
+    int letter_i = 0;
+    while(1) {
+        // go to find the word letter by letter
+        char c = fgetc(fptr);
+        if (feof(fptr)) {
+            break;
+        }
+
+        if (c == '\r' || c == '\n' || c == ' ' || c == '\t') {
+            if (letter_i > 0)
+            {
+                letter_i = 0;
+                words[word_i] = word;
+                word_i++;
+                word = malloc(sizeof(char) * (WORD_LENGTH + 1));
+                word[WORD_LENGTH] = '\0';
+            }
+        } else {
+            word[letter_i] = c;
+            letter_i++;
+        }
+    }
+
+    words_len = word_i;
+
+    fclose(fptr);
+}
 
 char* wordgen()
 {
-    FILE* fptr;
-    fptr = fopen("words.txt", "r");
-
     srand(time(0));
-    // generate a random number
-    int c = rand() % 2305;
-    printf("[i] Word index: %d\n", c);
+    int c = rand() % words_len;
+    printf("[i] The word is %s at index %d\n", words[c], c);
 
-    char* word = malloc(sizeof(char) * WORD_LENGTH);
-    fseek(fptr, c * (WORD_LENGTH + 1), SEEK_SET);
-    for (int i=0; i<WORD_LENGTH; i++) {
-        // go to find the word letter by letter
-        char c = fgetc(fptr);
-        word[i] = c;
-    }
-    printf("[i] The word is %s\n", word);
-    fclose(fptr);
-
-    return word;
+    return words[c];
 }
 
 void reset_word()
@@ -48,6 +74,7 @@ void init()
  * This must be called once at the beginning of the program
  */
 {
+    load_words();
     reset_word();
 }
 
@@ -83,6 +110,14 @@ int* interpret(const char* word)
         }
     }
     return result;
+}
+
+bool is_valid(const char* word)
+{
+    for (int i=0; i<words_len; i++) {
+        if (strcmp(word, words[i]) == 0) return true;
+    }
+    return false;
 }
 
 char* get_secret_word()

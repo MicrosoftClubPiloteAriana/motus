@@ -17,6 +17,8 @@ class CBridge:
         self.gamelogic.interpret.argtypes = [c_char_p]
         self.gamelogic.interpret.restype = POINTER(c_int)
         self.gamelogic.get_secret_word.restype = c_char_p
+        self.gamelogic.is_valid.argtypes = [c_char_p]
+        self.gamelogic.is_valid.restype = c_bool
 
     def init(self):
         """
@@ -42,6 +44,9 @@ class CBridge:
 
     def get_secret_word(self):
         return self.gamelogic.get_secret_word().decode("UTF-8")
+
+    def is_word_valid(self, word):
+        return self.gamelogic.is_valid(word.lower().encode())
 
 
 __all__ = ["CBridge"]
