@@ -29,6 +29,9 @@ class GameScreen(BaseScreen):
         self.clock.start()
 
     def get_elapsed_time(self):
+        """
+        :return: The elapsed time since the beginning of the current game
+        """
         return int(self.clock.elapsed_time)
 
     def stop_game(self):
@@ -74,29 +77,41 @@ class WordsFrame(tk.LabelFrame):
         self.bind("<BackSpace>", self.on_backspace_press)
 
     def on_key_press(self, event):
+        # Check whether the key is a letter
         if len(event.char) == 1 and event.char.isalpha():
             letter = event.char
+            # Check if there's space for another letter
             if self.current_letter < WORD_LENGTH:
                 self.current_word.append(letter.lower())
                 self.current_letter_label["text"] = letter.upper()
                 self.current_letter += 1
 
     def on_return_press(self, event):
+        # If the line is full, validate the word
         if self.current_letter == WORD_LENGTH:
             self.validate_current_line()
 
     def on_backspace_press(self, event):
+        # If the line isn't empty, delete the last letter
         if self.current_letter > 0:
             self.current_letter -= 1
             self.current_letter_label["text"] = ""
             self.current_word.pop()
 
     def validate_current_line(self):
+        """
+        Inteprets the given answer, win or loss of the player
+        is also determined here
+        """
         word = "".join(self.current_word)
+
+        # Word must be first valid grammatically speaking
         if not self.cbridge.is_word_valid(word):
             self.alert_invalid_word()
             return
 
+        # Interpret the answer and color
+        # the word according to the result
         result = self.cbridge.interpret(word)
         win = True
         for i in range(WORD_LENGTH):
@@ -112,6 +127,8 @@ class WordsFrame(tk.LabelFrame):
             else:
                 print("[e] Unknown color type", color)
 
+        # The player may win or loose after each try,
+        # so keep an eye on it...
         if win:
             self.root.stop_game()
             messagebox.showinfo(
@@ -133,6 +150,9 @@ class WordsFrame(tk.LabelFrame):
             self.current_word.clear()
 
     def restart(self):
+        """
+        Clears the board and resets the secret word
+        """
         for row in range(self.current_line + 1):
             for col in range(WORD_LENGTH):
                 self.letter_labels[row][col]["text"] = ""
@@ -147,6 +167,9 @@ class WordsFrame(tk.LabelFrame):
         return self.letter_labels[self.current_line][self.current_letter]
 
     def alert_invalid_word(self, blinks=4, enable=True):
+        """
+        What's a better way of alerting the player than by blinking with red (:
+        """
         if blinks <= 0 and enable: return
         for letter in self.letter_labels[self.current_line]:
             letter["foreground"] = "red" if enable else "black"
@@ -154,6 +177,9 @@ class WordsFrame(tk.LabelFrame):
 
 
 class ClockWidget(tk.Label):
+    """
+    More likely a TimerWidget, counts time and displays it
+    """
     def __init__(self, root):
         super().__init__(root)
 

@@ -43,9 +43,17 @@ class CBridge:
         self.gamelogic.reset_word()
 
     def get_secret_word(self):
+        """
+        :return: The answer that the player is trying to guess
+        """
         return self.gamelogic.get_secret_word().decode("UTF-8")
 
     def is_word_valid(self, word):
+        """
+        Checks whether a word is valid grammatically speaking
+        :param word: The target word
+        :return: The validity of the world
+        """
         return self.gamelogic.is_valid(word.lower().encode())
 
 
