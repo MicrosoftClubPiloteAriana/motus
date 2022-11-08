@@ -3,6 +3,8 @@ from tkinter import messagebox
 from cbridge import CBridge
 from basescreen import BaseScreen
 import time
+from string import ascii_lowercase
+import functools
 
 
 WORD_LENGTH = 5
@@ -14,6 +16,8 @@ class GameScreen(BaseScreen):
         super().__init__(root)
 
         self.cbridge = cbridge
+        self.hintmode = False
+        self.total_hints = 1
 
         self.init_ui()
 
@@ -21,12 +25,20 @@ class GameScreen(BaseScreen):
         # This frame contains all the rows
         self.wordsframe = WordsFrame(self, self.cbridge)
         self.clock = ClockWidget(self)
+        self.hintimage = tk.PhotoImage(file="./assets/hint.png")
+        self.hintimage = self.hintimage.subsample(20, 20)
+        self.hintbutton = tk.Button(self, text=str(self.total_hints), image=self.hintimage, compound="left", command=self.toggle_hint)
 
         self.wordsframe.focus_set()
-        self.wordsframe.pack()
-        self.clock.pack()
+        self.wordsframe.grid(row=0, column=0)
+        self.clock.grid(row=1, column=0)
+        self.hintbutton.grid(row=0, column=1, sticky="n", padx=10, pady=10)
 
         self.clock.start()
+
+    def toggle_hint(self):
+        self.hintmode = not self.hintmode
+        self.hintbutton["text"] = str(self.total_hints)
 
     def get_elapsed_time(self):
         """
@@ -40,11 +52,14 @@ class GameScreen(BaseScreen):
     def restart_game(self):
         self.wordsframe.restart()
         self.clock.start()
+        self.total_hints = 1
+        self.hintbutton["text"] = str(self.total_hints)
 
 
 COLOR_GRAY = 0
 COLOR_YELLOW = 1
 COLOR_GREEN = 2
+ALPHABET_EN = ascii_lowercase
 
 
 class WordsFrame(tk.LabelFrame):
@@ -56,8 +71,9 @@ class WordsFrame(tk.LabelFrame):
 
         self.current_line = 0
         self.current_letter = 0
-        self.current_word = []
+        self.current_word = [""] * WORD_LENGTH
 
+        self.revealed_letters = [""] * WORD_LENGTH
         self.letter_labels = []
         # Fill the frame according to the number of lines and word length
         for row in range(LINES_COUNT):
@@ -67,7 +83,10 @@ class WordsFrame(tk.LabelFrame):
                 if row == 0:
                     self.grid_columnconfigure(col, minsize=60)
 
-                letter = tk.Label(self, text="", borderwidth=1, relief="solid", bg="white")
+                letter = tk.Label(self, text="", highlightbackground="black", highlightthickness=1, bg="white")
+                letter.bind("<Enter>", functools.partial(self.on_letter_hover, letter, row, col))
+                letter.bind("<Leave>", functools.partial(self.on_letter_unhover, letter, row, col))
+                letter.bind("<Button-1>", functools.partial(self.on_letter_click, letter, row, col))
                 letter.grid(row=row, column=col, sticky="nsew")
 
                 self.letter_labels[-1].append(letter)
@@ -78,25 +97,52 @@ class WordsFrame(tk.LabelFrame):
 
     def on_key_press(self, event):
         # Check whether the key is a letter
-        if len(event.char) == 1 and event.char.isalpha():
+        if len(event.char) == 1 and event.char.lower() in ALPHABET_EN:
             letter = event.char
             # Check if there's space for another letter
-            if self.current_letter < WORD_LENGTH:
-                self.current_word.append(letter.lower())
-                self.current_letter_label["text"] = letter.upper()
+            while self.current_letter < WORD_LENGTH:
+                if self.current_word[self.current_letter] == "":
+                    self.current_word[self.current_letter] = letter.lower()
+                    self.current_letter_label["text"] = letter.upper()
+                    self.current_letter += 1
+                    break
                 self.current_letter += 1
 
     def on_return_press(self, event):
         # If the line is full, validate the word
-        if self.current_letter == WORD_LENGTH:
+        if all([l != "" for l in self.current_word]):
             self.validate_current_line()
 
     def on_backspace_press(self, event):
         # If the line isn't empty, delete the last letter
-        if self.current_letter > 0:
+        while self.current_letter > 0:
+            if self.revealed_letters[self.current_letter - 1] == "":
+                self.current_letter -= 1
+                self.current_word[self.current_letter] = ""
+                self.current_letter_label["text"] = ""
+                break
             self.current_letter -= 1
-            self.current_letter_label["text"] = ""
-            self.current_word.pop()
+
+    def on_letter_hover(self, letter_label, row, col, event):
+        if self.root.hintmode and row == self.current_line:
+            letter_label["highlightbackground"] = "green"
+            letter_label["highlightthickness"] = 2
+
+    def on_letter_unhover(self, letter_label, row, col, event):
+        if letter_label["highlightbackground"] != "black":
+            letter_label["highlightbackground"] = "black"
+            letter_label["highlightthickness"] = 1
+
+    def on_letter_click(self, letter_label, row, col, event):
+        if self.root.hintmode and row == self.current_line:
+            self.root.total_hints -= 1
+            self.root.toggle_hint()
+            letter_label["highlightbackground"] = "black"
+            letter_label["highlightthickness"] = 1
+            revealed_letter = self.cbridge.get_secret_word()[col].upper()
+            letter_label["text"] = revealed_letter
+            self.revealed_letters[col] = revealed_letter
+            self.current_word[col] = revealed_letter
 
     def validate_current_line(self):
         """
@@ -147,7 +193,7 @@ class WordsFrame(tk.LabelFrame):
         else:
             self.current_line += 1
             self.current_letter = 0
-            self.current_word.clear()
+            self.current_word = [""] * WORD_LENGTH
 
     def restart(self):
         """
@@ -159,7 +205,8 @@ class WordsFrame(tk.LabelFrame):
                 self.letter_labels[row][col]["bg"] = "#ffffff"
         self.current_line = 0
         self.current_letter = 0
-        self.current_word.clear()
+        self.current_word = [""] * WORD_LENGTH
+        self.revealed_letters = [""] * WORD_LENGTH
         self.cbridge.reset_word()
 
     @property
