@@ -17,6 +17,7 @@ class MainWindow(tk.Frame):
 
         self.root = root
         self.root.title("Motus")
+        self.root.resizable(False, False)
 
         # Initialize communication with C
         self.cbridge = CBridge()
