@@ -6,6 +6,7 @@ import time
 from string import ascii_lowercase
 import functools
 
+from internal_ui.BetterButton import BetterButton
 
 WORD_LENGTH = 5
 LINES_COUNT = 6
@@ -25,14 +26,19 @@ class GameScreen(BaseScreen):
         # This frame contains all the rows
         self.wordsframe = WordsFrame(self, self.cbridge)
         self.clock = ClockWidget(self)
-        self.hintimage = tk.PhotoImage(file="./assets/hint.png")
-        self.hintimage = self.hintimage.subsample(20, 20)
-        self.hintbutton = tk.Button(self, text=str(self.total_hints), image=self.hintimage, compound="left", command=self.toggle_hint)
+        self.toolsframe = tk.Frame(self)
+        self.hintbutton = BetterButton(self.toolsframe, text=str(self.total_hints),
+                                       compound="left", command=self.toggle_hint)
+        self.hintbutton.set_image("./assets/hint.png", 20)
+        self.restartbutton = BetterButton(self.toolsframe, command=self.restart_game)
+        self.restartbutton.set_image("./assets/restart.png", 20)
 
         self.wordsframe.focus_set()
         self.wordsframe.grid(row=0, column=0)
         self.clock.grid(row=1, column=0)
-        self.hintbutton.grid(row=0, column=1, sticky="n", padx=10, pady=10)
+        self.toolsframe.grid(row=0, column=1, sticky="n", padx=10, pady=10, rowspan=2)
+        self.hintbutton.pack()
+        self.restartbutton.pack(fill="x", pady=10, ipady=5)
 
         self.clock.start()
 
