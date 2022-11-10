@@ -191,9 +191,18 @@ class WordsFrame(tk.LabelFrame):
                 f"The word was: {self.cbridge.get_secret_word()}")
             self.root.restart_game()
         else:
-            self.current_line += 1
-            self.current_letter = 0
-            self.current_word = [""] * WORD_LENGTH
+            self.next_line()
+
+    def next_line(self):
+        """
+        Moves the cursor to the next line
+        """
+        self.current_line += 1
+        self.current_letter = 0
+        self.current_word = self.revealed_letters.copy()
+        for i, letter in enumerate(self.revealed_letters):
+            if letter != "":
+                self.letter_labels[self.current_line][i]["text"] = letter
 
     def restart(self):
         """
