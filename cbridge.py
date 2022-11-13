@@ -1,8 +1,12 @@
 from ctypes import *
 from pathlib import Path
+import platform
 
-
-CFILE = Path(__file__).parent / "gamelogic.so"
+if platform.system() == "Windows":
+    ext = ".dll"
+else:
+    ext = ".so"
+CFILE = Path(__file__).parent / ("gamelogic" + ext)
 
 
 class CBridge:
