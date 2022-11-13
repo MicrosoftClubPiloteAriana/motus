@@ -38,9 +38,9 @@ class GameScreen(BaseScreen):
         self.wordsframe.grid(row=0, column=0)
         self.clock.grid(row=1, column=0)
         self.toolsframe.grid(row=0, column=1, sticky="n", padx=10, pady=10, rowspan=2)
-        self.hintbutton.pack()
-        self.restartbutton.pack(fill="x", pady=10, ipady=5)
-        self.aboutbutton.pack(fill="x", pady=10)
+        self.hintbutton.grid()
+        self.restartbutton.grid(row=1, column=0, sticky="ew", pady=10, ipady=5)
+        self.aboutbutton.grid(row=2, column=0, sticky="ew", pady=(100, 0))
 
         self.clock.start()
 
