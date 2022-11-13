@@ -1,4 +1,6 @@
 import tkinter as tk
+
+from aboutscreen import AboutScreen
 from cbridge import CBridge
 from basescreen import BaseScreen
 from gamescreen import GameScreen
@@ -23,9 +25,14 @@ class MainWindow(tk.Frame):
         self.cbridge = CBridge()
         self.cbridge.init()
 
-        # Initialize home screen and game screen
+        # Initialize screens
         self.gamescreen = GameScreen(self, self.cbridge)
         self.homescreen = HomeScreen(self)
+        self.aboutscreen = AboutScreen(self)
+        self.gamescreen.hide()
+        self.homescreen.hide()
+        self.aboutscreen.hide()
+
         self.active_screen = None
 
         self.switch(self.gamescreen)
@@ -38,11 +45,10 @@ class MainWindow(tk.Frame):
 
     def switch(self, screen: BaseScreen):
         """
-        Switches between home screen and base screen
-
-        :param screen: GameScreen or HomeScreen
+        Switches between screens
         """
         if self.active_screen is not None:
             self.active_screen.hide()
             self.active_screen = screen
+        self.active_screen = screen
         screen.show()

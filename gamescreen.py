@@ -32,7 +32,8 @@ class GameScreen(BaseScreen):
         self.hintbutton.set_image("./assets/hint.png", 20)
         self.restartbutton = BetterButton(self.toolsframe, command=self.restart_game)
         self.restartbutton.set_image("./assets/restart.png", 20)
-        self.aboutbutton = tk.Button(self.toolsframe, text="About")
+        self.aboutbutton = tk.Button(self.toolsframe, text="About",
+                                     command=lambda: self.root.switch(self.root.aboutscreen))
 
         self.wordsframe.focus_set()
         self.wordsframe.grid(row=0, column=0)
