@@ -9,7 +9,22 @@ A new, fun, and engaging app that comes with a puzzle to guess a five-letter wor
 # How to run
 
 <details> 
-  <summary> Download pre-compiled C library</summary>
+  <summary> Clone this repository </summary>
+
+```
+git clone https://github.com/MicrosoftClubPiloteAriana/motus
+```
+
+### OR
+
+Press "Download ZIP" and unzip it
+
+![image](https://user-images.githubusercontent.com/53614199/209699806-01759abd-497f-472c-8a69-3d6619d36318.png)
+
+</details>
+
+<details> 
+  <summary> Download pre-compiled C library (Windows & Linux only) </summary>
 
 https://github.com/MicrosoftClubPiloteAriana/motus/releases/
 
