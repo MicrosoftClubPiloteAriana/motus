@@ -46,8 +46,13 @@ class GameScreen(BaseScreen):
         self.clock.start()
 
     def toggle_hint(self):
-        self.hintmode = not self.hintmode
-        self.hintbutton["text"] = str(self.total_hints)
+        if self.hintmode:
+            self.hintmode = not self.hintmode
+            self.hintbutton["text"] = str(self.total_hints)
+            if self.total_hints == 0:
+                self.hintbutton["state"] = "disabled"
+        elif self.total_hints > 0:
+            self.hintmode = not self.hintmode
 
     def get_elapsed_time(self):
         """
@@ -61,8 +66,9 @@ class GameScreen(BaseScreen):
     def restart_game(self):
         self.wordsframe.restart()
         self.clock.start()
-        self.total_hints = 1
+        self.total_hints = 2
         self.hintbutton["text"] = str(self.total_hints)
+        self.hintbutton["state"] = "normal"
 
 
 COLOR_GRAY = 0
@@ -92,7 +98,7 @@ class WordsFrame(tk.LabelFrame):
                 if row == 0:
                     self.grid_columnconfigure(col, minsize=60)
 
-                letter = tk.Label(self, text="", highlightbackground="black", highlightthickness=1, bg="white")
+                letter = tk.Label(self, text="", bg="white", borderwidth=1, relief="solid")
                 letter.bind("<Enter>", functools.partial(self.on_letter_hover, letter, row, col))
                 letter.bind("<Leave>", functools.partial(self.on_letter_unhover, letter, row, col))
                 letter.bind("<Button-1>", functools.partial(self.on_letter_click, letter, row, col))
@@ -133,21 +139,20 @@ class WordsFrame(tk.LabelFrame):
             self.current_letter -= 1
 
     def on_letter_hover(self, letter_label, row, col, event):
-        if self.root.hintmode and row == self.current_line:
-            letter_label["highlightbackground"] = "green"
-            letter_label["highlightthickness"] = 2
+        if self.root.hintmode and row == self.current_line and \
+           self.revealed_letters[col] == "":
+            letter_label["borderwidth"] = 2
 
     def on_letter_unhover(self, letter_label, row, col, event):
-        if letter_label["highlightbackground"] != "black":
-            letter_label["highlightbackground"] = "black"
-            letter_label["highlightthickness"] = 1
+        if letter_label["borderwidth"] != 1:
+            letter_label["borderwidth"] = 1
 
     def on_letter_click(self, letter_label, row, col, event):
-        if self.root.hintmode and row == self.current_line:
+        if self.root.hintmode and row == self.current_line and \
+           self.revealed_letters[col] == "":
             self.root.total_hints -= 1
             self.root.toggle_hint()
-            letter_label["highlightbackground"] = "black"
-            letter_label["highlightthickness"] = 1
+            letter_label["borderwidth"] = 1
             revealed_letter = self.cbridge.get_secret_word()[col].upper()
             letter_label["text"] = revealed_letter
             self.revealed_letters[col] = revealed_letter
